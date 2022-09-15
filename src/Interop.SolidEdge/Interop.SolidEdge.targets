@@ -37,7 +37,7 @@
 
   <Target Name="GenerateInteropXmlDocumentation" Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <PropertyGroup>
-      <GenerateXmlDocumentationCommand>$(SolutionDir)\GenerateXmlDocumentation\bin\$(Configuration)\GenerateXmlDocumentation.exe "$(TargetPath)"</GenerateXmlDocumentationCommand>
+      <GenerateXmlDocumentationCommand>$(SolutionDir)\GenerateXmlDocumentation\bin\$(Configuration)\$(TargetFramework)\GenerateXmlDocumentation.exe "$(TargetPath)"</GenerateXmlDocumentationCommand>
     </PropertyGroup>
 
     <Message Text="Executing: $(GenerateXmlDocumentationCommand)" Importance="High" />
@@ -56,6 +56,10 @@
     <PropertyGroup Condition="'$(TargetFramework)'=='NET45'">
       <ILRepackTargetPlatform>v4</ILRepackTargetPlatform>
     </PropertyGroup>
+
+	  <PropertyGroup Condition="'$(TargetFramework)'=='net6.0'">
+		  <ILRepackTargetPlatform>v4</ILRepackTargetPlatform>
+	  </PropertyGroup>
     
     <Error Condition="'$(ILRepackTargetPlatform)'==''" Text="TargetFramework '$(TargetFramework)' is not supported in this custom build task." />
     

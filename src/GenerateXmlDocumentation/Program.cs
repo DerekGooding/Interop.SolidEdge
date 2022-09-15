@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using System.Text;
 
 namespace GenerateXmlDocumentation
 {
@@ -17,8 +12,8 @@ namespace GenerateXmlDocumentation
         [DllImport("oleaut32.dll", CharSet = CharSet.Unicode, PreserveSig = false)]
         static extern ITypeLib LoadRegTypeLib(ref Guid rguid, int wVerMajor, int wVerMinor, int lcid);
 
-        static FileInfo _targetPath;
-        static DirectoryInfo _targetDir;
+        static FileInfo? _targetPath;
+        static DirectoryInfo? _targetDir;
 
         static int Main(string[] args)
         {
@@ -28,33 +23,33 @@ namespace GenerateXmlDocumentation
                 if (args.Length == 1)
                 {
                     _targetPath = new FileInfo(args[0]);
-
+                    Console.WriteLine(_targetPath);
                     if (_targetPath.Exists)
                     {
                         _targetDir = _targetPath.Directory;
-
-                        foreach (FileInfo fileInfo in _targetDir.EnumerateFiles("Interop.*.dll", SearchOption.TopDirectoryOnly))
-                        {
-                            Console.WriteLine("Building documentation for {0}.", fileInfo.FullName);
-                            if (fileInfo.Name.Equals(_targetPath.Name, StringComparison.OrdinalIgnoreCase))
+                        if(_targetDir != null)
+                            foreach (FileInfo fileInfo in _targetDir.EnumerateFiles("Interop.*.dll", SearchOption.TopDirectoryOnly))
                             {
-                                // Skip Interop.SolidEdge.dll.
-                                continue;
-                            }
+                                Console.WriteLine("Building documentation for {0}.", fileInfo.FullName);
+                                if (fileInfo.Name.Equals(_targetPath.Name, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    // Skip Interop.SolidEdge.dll.
+                                    continue;
+                                }
 
-                            var interopAssembly = Assembly.LoadFrom(fileInfo.FullName);
-                            GenerateDocumentation(interopAssembly);
-                        }
+                                var interopAssembly = Assembly.LoadFrom(fileInfo.FullName);
+                                GenerateDocumentation(interopAssembly);
+                            }
 
                         return 0;
                     }
                     else
                     {
-                        throw new System.Exception(String.Format("$(TargetPath) {0} does not exist", args[0]));
+                        throw new Exception(String.Format("$(TargetPath) {0} does not exist", args[0]));
                     }
                 }
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
@@ -70,7 +65,7 @@ namespace GenerateXmlDocumentation
 
         public static Dictionary<string, string> GetHelpStrings(Assembly assembly)
         {
-            Dictionary<string, string> dictionary = new Dictionary<string, string>();
+            Dictionary<string, string> dictionary = new();
 
             var a = assembly.CustomAttributes.FirstOrDefault(x => x.AttributeType.Equals(typeof(ImportedFromTypeLibAttribute)));
             var b = assembly.CustomAttributes.FirstOrDefault(x => x.AttributeType.Equals(typeof(GuidAttribute)));
@@ -79,75 +74,61 @@ namespace GenerateXmlDocumentation
             if (a != null)
             {
                 Guid guid = Guid.Parse(String.Format("{0}", b.ConstructorArguments[0].Value));
-                int wVerMajor = (int)c.ConstructorArguments[0].Value;
-                int wVerMinor = (int)c.ConstructorArguments[1].Value;
 
-                ITypeLib typeLib = null;
-                typeLib = LoadRegTypeLib(ref guid, wVerMajor, wVerMinor, 0);
+                    int? wVerMajor = (int)c.ConstructorArguments[0].Value;
+                    int? wVerMinor = (int)c.ConstructorArguments[1].Value;
 
-                string strLibName = null;
-                string strLibDocString = null;
-                int dwLibHelpContext = 0;
-                string strLibHelpFile = null;
+                    ITypeLib? typeLib = null;
+                    typeLib = LoadRegTypeLib(ref guid, (int)wVerMajor, (int)wVerMinor, 0);
 
-                typeLib.GetDocumentation(-1, out strLibName, out strLibDocString, out dwLibHelpContext, out strLibHelpFile);
+                    typeLib.GetDocumentation(-1, out string strLibName, out string strLibDocString, out int dwLibHelpContext, out string strLibHelpFile);
 
-                int count = typeLib.GetTypeInfoCount();
+                    int count = typeLib.GetTypeInfoCount();
 
-                // Loop through types.
-                for (int i = 0; i < count; i++)
-                {
-                    ITypeInfo typeInfo = null;
-                    typeLib.GetTypeInfo(i, out typeInfo);
-
-                    IntPtr pTypeAttr = IntPtr.Zero;
-
-                    typeInfo.GetTypeAttr(out pTypeAttr);
-                    System.Runtime.InteropServices.ComTypes.TYPEATTR typeAttr = (System.Runtime.InteropServices.ComTypes.TYPEATTR)Marshal.PtrToStructure(pTypeAttr, typeof(System.Runtime.InteropServices.ComTypes.TYPEATTR));
-
-                    // Skip type if it is hidden.
-                    if (typeAttr.wTypeFlags.HasFlag(System.Runtime.InteropServices.ComTypes.TYPEFLAGS.TYPEFLAG_FHIDDEN) == true)
+                    // Loop through types.
+                    for (int i = 0; i < count; i++)
                     {
-                        continue;
-                    }
+                        typeLib.GetTypeInfo(i, out ITypeInfo typeInfo);
 
-                    string strTypeName = null;
-                    string strTypeDocString = null;
-                    int dwTypeHelpContext = 0;
-                    string strTypeHelpFile = null;
+                        IntPtr pTypeAttr = IntPtr.Zero;
 
-                    typeInfo.GetDocumentation(-1, out strTypeName, out strTypeDocString, out dwTypeHelpContext, out strTypeHelpFile);
+                        typeInfo.GetTypeAttr(out pTypeAttr);
+                        TYPEATTR typeAttr = (TYPEATTR)Marshal.PtrToStructure(pTypeAttr, typeof(TYPEATTR));
 
-                    string typeKey = String.Format("{0}.{1}", strLibName, strTypeName);
-                    dictionary.Add(typeKey, strTypeDocString);
-
-                    for (int j = 0; j < typeAttr.cFuncs; j++)
-                    {
-                        IntPtr pFuncDesc = IntPtr.Zero;
-                        typeInfo.GetFuncDesc(j, out pFuncDesc);
-
-                        System.Runtime.InteropServices.ComTypes.FUNCDESC funcDesc = (System.Runtime.InteropServices.ComTypes.FUNCDESC)Marshal.PtrToStructure(pFuncDesc, typeof(System.Runtime.InteropServices.ComTypes.FUNCDESC));
-
-                        string strMemberName = null;
-                        string strMemberDocString = null;
-                        int dwMemberHelpContext = 0;
-                        string strMemberHelpFile = null;
-
-                        typeInfo.GetDocumentation(funcDesc.memid, out strMemberName, out strMemberDocString, out dwMemberHelpContext, out strMemberHelpFile);
-
-                        string memberKey = String.Format("{0}.{1}", typeKey, strMemberName);
-
-                        if (!dictionary.ContainsKey(memberKey))
+                        // Skip type if it is hidden.
+                        if (typeAttr.wTypeFlags.HasFlag(TYPEFLAGS.TYPEFLAG_FHIDDEN) == true)
                         {
-                            dictionary.Add(memberKey, strMemberDocString);
+                            continue;
                         }
 
-                        typeInfo.ReleaseFuncDesc(pFuncDesc);
+                        typeInfo.GetDocumentation(-1, out string? strTypeName, out string? strTypeDocString, out int dwTypeHelpContext, out string? strTypeHelpFile);
+
+                        string typeKey = String.Format("{0}.{1}", strLibName, strTypeName);
+                        dictionary.Add(typeKey, strTypeDocString);
+
+                        for (int j = 0; j < typeAttr.cFuncs; j++)
+                        {
+                            IntPtr pFuncDesc = IntPtr.Zero;
+                            typeInfo.GetFuncDesc(j, out pFuncDesc);
+
+                            FUNCDESC funcDesc = (FUNCDESC)Marshal.PtrToStructure(pFuncDesc, typeof(FUNCDESC));
+
+                            typeInfo.GetDocumentation(funcDesc.memid, out string? strMemberName, out string? strMemberDocString, out int dwMemberHelpContext, out string? strMemberHelpFile);
+
+                            string memberKey = string.Format("{0}.{1}", typeKey, strMemberName);
+
+                            if (!dictionary.ContainsKey(memberKey))
+                            {
+                                dictionary.Add(memberKey, strMemberDocString);
+                            }
+
+                            typeInfo.ReleaseFuncDesc(pFuncDesc);
+                        }
+
+                        typeInfo.ReleaseTypeAttr(pTypeAttr);
+
                     }
-
-                    typeInfo.ReleaseTypeAttr(pTypeAttr);
-
-                }
+                
             }
 
             return dictionary;

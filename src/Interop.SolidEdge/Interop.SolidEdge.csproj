@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>NET45;NET40</TargetFrameworks>
+    <TargetFrameworks>net6.0</TargetFrameworks>
     <AppDesignerFolder>Properties</AppDesignerFolder>
   </PropertyGroup>
 
@@ -105,13 +105,13 @@
 
   <PropertyGroup>
     <AssemblyVersion>220.0.0.0</AssemblyVersion>
-    <FileVersion>220.2.0.0</FileVersion>
-    <Version>220.2.0</Version>
+    <FileVersion>220.0.0.0</FileVersion>
+    <Version>220.0.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Authors>Jason Newell</Authors>
+    <Authors>Derek Gooding</Authors>
     <Company />
     <Description>A single Interop Assembly containing all relevant Solid Edge API definitions.</Description>
-    <PackageReleaseNotes>Updated to Solid Edge 2020 MP2.</PackageReleaseNotes>
+    <PackageReleaseNotes>Updated to Solid Edge 2022 MP9.</PackageReleaseNotes>
     <PackageId>Interop.SolidEdge</PackageId>
     <PackageIconUrl>https://raw.githubusercontent.com/SolidEdgeCommunity/Interop.SolidEdge/master/media/icon.png</PackageIconUrl>
     <PackageProjectUrl>https://github.com/SolidEdgeCommunity/Interop.SolidEdge</PackageProjectUrl>
