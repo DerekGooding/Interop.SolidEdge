@@ -1,10 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>net8.0</TargetFrameworks>
     <AppDesignerFolder>Properties</AppDesignerFolder>
   </PropertyGroup>
-
   <ItemGroup>
     <COMReference Include="SolidEdgeAssembly.dll">
       <Guid>3e2b3bd4-f0b9-11d1-bdfd-080036b4d502</Guid>
@@ -95,18 +93,16 @@
       <Isolated>false</Isolated>
     </COMReference>
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="ILRepack" Version="2.0.13" />
     <!-- marks all packages as 'local only' so they don't end up in the nuspec -->
     <PackageReference Update="@(PackageReference)" PrivateAssets="All" />
     <PackageReference Update="ILRepack" Version="2.0.16" />
   </ItemGroup>
-
   <PropertyGroup>
-    <AssemblyVersion>220.0.0.0</AssemblyVersion>
-    <FileVersion>220.0.0.0</FileVersion>
-    <Version>220.0.0</Version>
+    <AssemblyVersion>224.0.0.0</AssemblyVersion>
+    <FileVersion>224.0.0.0</FileVersion>
+    <Version>224.0.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Authors>Derek Gooding</Authors>
     <Company />
@@ -120,7 +116,6 @@
     <RepositoryUrl>https://github.com/SolidEdgeCommunity/Interop.SolidEdge.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
-
   <!-- MSBUILD magic ;-) -->
   <Import Project="Interop.SolidEdge.targets" />
 </Project>

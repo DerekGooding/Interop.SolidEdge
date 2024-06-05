@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2005
@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Interop.SolidEdge", "Intero
 		{DC3F2A93-E81E-479F-BCCA-FE1F1F04348B} = {DC3F2A93-E81E-479F-BCCA-FE1F1F04348B}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenerateXmlDocumentation", "GenerateXmlDocumentation\GenerateXmlDocumentation.csproj", "{DC3F2A93-E81E-479F-BCCA-FE1F1F04348B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenerateXmlDocumentation", "GenerateXmlDocumentation\GenerateXmlDocumentation.csproj", "{DC3F2A93-E81E-479F-BCCA-FE1F1F04348B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
